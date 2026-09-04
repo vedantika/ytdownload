@@ -84,9 +84,17 @@ def parse_time_str(time_str):
 
 @app.route("/")
 def serve_index():
-    if os.path.exists(os.path.join(APP_DIR, "index.html")):
-        return send_from_directory(APP_DIR, "index.html")
-    return send_from_directory(os.path.join(APP_DIR, "frontend"), "index.html")
+    possible_paths = [
+        os.path.join(APP_DIR, "index.html"),
+        os.path.join(APP_DIR, "frontend", "index.html"),
+        os.path.join(os.getcwd(), "index.html"),
+        os.path.join(os.getcwd(), "frontend", "index.html")
+    ]
+    for p in possible_paths:
+        if os.path.exists(p):
+            with open(p, "r", encoding="utf-8") as f:
+                return Response(f.read(), mimetype="text/html")
+    return "NovaStream Downloader Server Running", 200
 
 
 
@@ -636,9 +644,18 @@ def deezer_charts():
 def serve_static(path):
     if path.startswith("api/"):
         return jsonify({"error": "API endpoint not found"}), 404
-    if os.path.exists(os.path.join(APP_DIR, path)):
-        return send_from_directory(APP_DIR, path)
-    return send_from_directory(os.path.join(APP_DIR, "frontend"), path)
+    possible_paths = [
+        os.path.join(APP_DIR, path),
+        os.path.join(APP_DIR, "frontend", path),
+        os.path.join(os.getcwd(), path),
+        os.path.join(os.getcwd(), "frontend", path)
+    ]
+    for p in possible_paths:
+        if os.path.exists(p) and os.path.isfile(p):
+            mimetype = "text/css" if path.endswith(".css") else "application/javascript" if path.endswith(".js") else None
+            with open(p, "rb") as f:
+                return Response(f.read(), mimetype=mimetype)
+    return jsonify({"error": "File not found"}), 404
 
 
 if __name__ == "__main__":
