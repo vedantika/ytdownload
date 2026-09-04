@@ -84,6 +84,8 @@ def parse_time_str(time_str):
 
 @app.route("/")
 def serve_index():
+    if os.path.exists(os.path.join(APP_DIR, "index.html")):
+        return send_from_directory(APP_DIR, "index.html")
     return send_from_directory(os.path.join(APP_DIR, "frontend"), "index.html")
 
 
@@ -621,6 +623,8 @@ def deezer_charts():
 def serve_static(path):
     if path.startswith("api/"):
         return jsonify({"error": "API endpoint not found"}), 404
+    if os.path.exists(os.path.join(APP_DIR, path)):
+        return send_from_directory(APP_DIR, path)
     return send_from_directory(os.path.join(APP_DIR, "frontend"), path)
 
 

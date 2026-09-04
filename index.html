@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovaStream | Ultimate YouTube Downloader</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="styles.css?v=1.2">
+</head>
+<body>
+
+    <!-- Dynamic Ambient Glowing Backgrounds -->
+    <div class="glow-sphere sphere-1"></div>
+    <div class="glow-sphere sphere-2"></div>
+    <div class="glow-sphere sphere-3"></div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="main-header">
+            <div class="brand">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-bolt-lightning"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>NovaStream</h1>
+                    <span class="tagline">YouTube Media Downloader</span>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <button class="btn btn-glass" id="headerIphoneBtn" title="Transfer Music directly to iPhone">
+                    <i class="fa-brands fa-apple" style="color: #00f2fe;"></i>
+                    <span>iPhone Transfer</span>
+                </button>
+                <button class="btn btn-glass" id="openFolderBtn" title="Open Downloads Folder">
+                    <i class="fa-regular fa-folder-open"></i>
+                    <span>Downloads Folder</span>
+                </button>
+                <div class="status-badge" id="activeTasksBadge">
+                    <span class="pulse-dot"></span>
+                    <span id="activeTasksCount">0 Active</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Hero & URL Input -->
+        <section class="hero-section">
+            <div class="hero-title">
+                <h2>Download YouTube Videos & Audio in <span class="gradient-text">Ultra High Quality</span></h2>
+                <p>Convert YouTube videos, shorts & playlists into 4K MP4, 320kbps MP3, FLAC lossless & more.</p>
+            </div>
+
+            <div class="url-input-card">
+                <div class="input-wrapper">
+                    <i class="fa-brands fa-youtube input-icon"></i>
+                    <input type="text" id="urlInput" placeholder="Paste YouTube link here (e.g. https://www.youtube.com/watch?v=...)" autocomplete="off">
+                    <div class="input-action-buttons">
+                        <button class="btn-icon" id="pasteBtn" title="Paste from clipboard">
+                            <i class="fa-regular fa-paste"></i>
+                        </button>
+                        <button class="btn-icon" id="clearBtn" title="Clear input" style="display: none;">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="fetchBtn">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <span>Fetch Details</span>
+                </button>
+            </div>
+            
+            <div class="quick-samples">
+                <span>Try an example:</span>
+                <button class="sample-chip" data-url="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Classic Music Video</button>
+                <button class="sample-chip" data-url="https://www.youtube.com/watch?v=5qap5aO4i9A">Lofi Girl Stream</button>
+                <button class="sample-chip" data-url="https://www.youtube.com/watch?v=LXb3EKWsInQ">4K Nature Demo</button>
+            </div>
+        </section>
+
+        <!-- Loading Skeleton -->
+        <div class="card skeleton-card" id="loadingSkeleton" style="display: none;">
+            <div class="skeleton-thumb"></div>
+            <div class="skeleton-info">
+                <div class="skeleton-line long"></div>
+                <div class="skeleton-line short"></div>
+                <div class="skeleton-line medium"></div>
+            </div>
+        </div>
+
+        <!-- Video Info & Download Options Card -->
+        <section class="card media-card" id="mediaCard" style="display: none;">
+            <div class="media-details">
+                <div class="media-thumb-container">
+                    <img id="videoThumb" src="" alt="Thumbnail">
+                    <span class="duration-badge" id="videoDuration">00:00</span>
+                    <button class="play-preview-btn" id="playPreviewBtn" title="Preview Video">
+                        <i class="fa-solid fa-play"></i>
+                    </button>
+                </div>
+
+                <div class="media-meta">
+                    <h3 id="videoTitle">Video Title Here</h3>
+                    <div class="meta-pills">
+                        <span class="meta-pill"><i class="fa-regular fa-user"></i> <span id="videoUploader">Channel</span></span>
+                        <span class="meta-pill"><i class="fa-regular fa-eye"></i> <span id="videoViews">0 views</span></span>
+                        <span class="meta-pill"><i class="fa-regular fa-calendar"></i> <span id="videoDate">Date</span></span>
+                    </div>
+
+                    <!-- Tabs for format selection -->
+                    <div class="format-tabs">
+                        <button class="tab-btn active" data-tab="video"><i class="fa-solid fa-film"></i> Video + Audio</button>
+                        <button class="tab-btn" data-tab="whatsapp" style="border-color: rgba(37, 211, 102, 0.4);"><i class="fa-brands fa-whatsapp" style="color:#25d366;"></i> WhatsApp Status</button>
+                        <button class="tab-btn" data-tab="audio"><i class="fa-solid fa-music"></i> Audio Only</button>
+                        <button class="tab-btn" data-tab="video_only"><i class="fa-solid fa-video"></i> Video Only (Mute)</button>
+                    </div>
+
+                    <!-- Format Options Content -->
+                    <div class="tab-content" id="tabVideo">
+                        <div class="options-grid" id="videoQualityGrid">
+                            <!-- Quality chips populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="tabWhatsapp" style="display: none;">
+                        <div class="whatsapp-banner">
+                            <i class="fa-brands fa-whatsapp" style="color: #25d366; font-size: 20px;"></i>
+                            <span>Optimized for WhatsApp Status uploading (H.264 Baseline/Main + AAC audio + FastStart enabled). Guaranteed 100% playable on mobile!</span>
+                        </div>
+                        <div class="options-grid" id="whatsappQualityGrid">
+                            <!-- WhatsApp chips populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="tabAudio" style="display: none;">
+                        <div class="options-grid" id="audioQualityGrid">
+                            <!-- Audio chips populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="tabVideoOnly" style="display: none;">
+                        <div class="options-grid" id="videoOnlyQualityGrid">
+                            <!-- Video-only chips populated dynamically -->
+                        </div>
+                    </div>
+
+
+                    <!-- Advanced Options accordion -->
+                    <div class="advanced-accordion">
+                        <button class="accordion-toggle" id="advancedToggle">
+                            <span><i class="fa-solid fa-sliders"></i> Advanced Options (Trimming & Subtitles)</span>
+                            <i class="fa-solid fa-chevron-down toggle-icon"></i>
+                        </button>
+                        <div class="accordion-content" id="advancedContent" style="display: none;">
+                            <div class="advanced-grid">
+                                <!-- Trimmer -->
+                                <div class="adv-group">
+                                    <label><i class="fa-solid fa-scissors"></i> Trim Clip (Optional)</label>
+                                    <div class="trim-inputs">
+                                        <input type="text" id="trimStart" placeholder="Start (e.g. 00:30)">
+                                        <span>to</span>
+                                        <input type="text" id="trimEnd" placeholder="End (e.g. 02:15)">
+                                    </div>
+                                </div>
+                                <!-- Subtitles -->
+                                <div class="adv-group">
+                                    <label><i class="fa-solid fa-closed-captioning"></i> Embed Subtitles</label>
+                                    <div class="sub-controls">
+                                        <label class="switch">
+                                            <input type="checkbox" id="embedSubCheck">
+                                            <span class="slider round"></span>
+                                        </label>
+                                        <select id="subLangSelect" disabled>
+                                            <option value="en">English (en)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Download Trigger Button -->
+                    <div class="download-action">
+                        <button class="btn btn-download" id="startDownloadBtn">
+                            <i class="fa-solid fa-download"></i>
+                            <span>Start Download Now</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Active Downloads Section -->
+        <section class="downloads-section" id="activeDownloadsSection" style="display: none;">
+            <div class="section-header">
+                <h3><i class="fa-solid fa-spinner fa-spin"></i> Active Downloads</h3>
+            </div>
+            <div class="downloads-list" id="activeDownloadsList">
+                <!-- Dynamic active download items -->
+            </div>
+        </section>
+
+        <!-- Artist Discography & Albums Explorer Section -->
+        <section class="discography-section">
+            <div class="section-header">
+                <h3><i class="fa-solid fa-compact-disc" style="color: #00f2fe;"></i> Artist Discography & Albums Explorer</h3>
+                <div class="deezer-search-box">
+                    <input type="text" id="artistSearchInput" placeholder="Search artist (e.g. Coldplay, Taylor Swift, Eminem)...">
+                    <button class="btn btn-sm btn-primary" id="artistSearchBtn">
+                        <i class="fa-solid fa-record-vinyl"></i> Find Albums
+                    </button>
+                </div>
+            </div>
+
+            <div class="albums-grid" id="albumsGrid">
+                <!-- Populated dynamically with Artist Albums -->
+            </div>
+        </section>
+
+        <!-- Deezer Music & Streaming Explorer Section -->
+        <section class="deezer-section">
+            <div class="section-header">
+                <h3><i class="fa-brands fa-deezer" style="color: #ff0092;"></i> Trending Hits & Quick Search</h3>
+                <div class="deezer-search-box">
+                    <input type="text" id="deezerSearchInput" placeholder="Search song, artist or album on Deezer...">
+                    <button class="btn btn-sm btn-primary" id="deezerSearchBtn">
+                        <i class="fa-solid fa-magnifying-glass"></i> Search Deezer
+                    </button>
+                </div>
+            </div>
+
+            <div class="deezer-grid" id="deezerResultsGrid">
+                <!-- Populated dynamically with Deezer tracks & audio preview controls -->
+            </div>
+        </section>
+
+
+        <!-- Download Library / History Section -->
+        <section class="library-section">
+            <div class="section-header">
+                <h3><i class="fa-solid fa-clock-rotate-left"></i> Completed Downloads Library</h3>
+                <button class="btn btn-sm btn-glass" id="refreshHistoryBtn">
+                    <i class="fa-solid fa-rotate-right"></i> Refresh
+                </button>
+            </div>
+
+            
+            <div class="library-grid" id="historyGrid">
+                <div class="empty-state" id="emptyHistory">
+                    <i class="fa-regular fa-folder-open empty-icon"></i>
+                    <p>No completed downloads yet. Enter a YouTube URL above to start!</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Media Preview Player Modal -->
+    <div class="modal-overlay" id="playerModal" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h4 id="modalTitle">Media Preview</h4>
+                <button class="modal-close" id="closeModalBtn">&times;</button>
+            </div>
+            <div class="modal-body" id="modalMediaContainer">
+                <!-- Video / Audio element injected dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- iPhone Wireless Transfer Modal -->
+    <div class="modal-overlay" id="iphoneModal" style="display: none;">
+        <div class="modal-card iphone-modal-card">
+            <div class="modal-header">
+                <h4><i class="fa-brands fa-apple" style="color: #00f2fe;"></i> Instant iPhone Transfer</h4>
+                <button class="modal-close" id="closeIphoneModalBtn">&times;</button>
+            </div>
+            <div class="modal-body iphone-modal-body">
+                <div class="iphone-file-title" id="iphoneFileTitle">Download Media File</div>
+                <div class="qr-container">
+                    <img id="qrCodeImg" src="" alt="Scan QR Code with iPhone Camera">
+                </div>
+                <div class="iphone-instructions">
+                    <h5><i class="fa-solid fa-mobile-screen-button" style="color: #00f2fe;"></i> 3 Steps to Save directly on iPhone:</h5>
+                    <ol>
+                        <li>Make sure your iPhone is on the <b>same Wi-Fi</b> network as this PC.</li>
+                        <li>Open the <b>Camera app</b> on your iPhone and point it at the QR Code above.</li>
+                        <li>Tap the yellow notification banner to open Safari, then tap <b>Download</b>!</li>
+                    </ol>
+                    <div class="direct-link-box">
+                        <input type="text" id="iphoneDirectUrl" readonly>
+                        <button class="btn btn-sm btn-glass" id="copyIphoneUrlBtn"><i class="fa-regular fa-copy"></i> Copy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification System -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="app.js?v=1.2"></script>
+</body>
+</html>
