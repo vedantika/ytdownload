@@ -31,8 +31,16 @@ def add_cors_headers(response):
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 APP_DIR = os.path.dirname(BASE_DIR)
-DOWNLOAD_DIR = os.path.join(APP_DIR, "downloads")
-os.makedirs(DOWNLOAD_DIR, exist_ok=True)
+if os.environ.get("VERCEL") or os.environ.get("VERCEL_ENV"):
+    DOWNLOAD_DIR = "/tmp"
+else:
+    DOWNLOAD_DIR = os.path.join(APP_DIR, "downloads")
+
+try:
+    os.makedirs(DOWNLOAD_DIR, exist_ok=True)
+except Exception:
+    DOWNLOAD_DIR = "/tmp"
+    os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
 # In-memory dictionary for download tasks
 # task_id -> dict
